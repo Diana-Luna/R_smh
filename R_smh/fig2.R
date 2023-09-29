@@ -62,25 +62,98 @@ data3 <- data3 %>% group_by(iso3, if_bws, ifsmh, fsystem) %>% #if_bws, ifsmh,  f
 
 totalCropland = sum(data3$Value)
 
+area_ws <- data3 %>% group_by(iso3, if_bws) %>%
+  summarise(HarvestedArea_ws = sum(HarvestedArea),
+            total_water_ws = sum(total_water_m3))
+#colnames(area_ws) <- c("iso3","if_bws", "HarvestedArea_ws")
+
+data3 <- left_join(data3, area_ws, by=c("iso3", "if_bws"))
+
+
+# ####
+# 
+# data3$percCropland <- data3$Value / totalCropland
+# data3$HarvAreaCropland <- data3$HarvestedArea / data3$HarvestedArea_ws
+# data3$prodCropland <- data3$production_t / data3$HarvestedArea_ws
+# data3$EnergyCropland <- data3$Energy_kcal / data3$HarvestedArea_ws
+# data3$WaterCropland <- data3$total_water_m3 / data3$HarvestedArea_ws
+# data3$green_water_pc <- data3$green_water_m3 / data3$total_water_ws
+# data3$blue_water_pc <- data3$blue_water_m3 / data3$total_water_ws
+# data3$CalciumCropland <- data3$Calcium / data3$HarvestedArea_ws
+# data3$Vit_B12Cropland <- data3$Vit_B12 / data3$HarvestedArea_ws
+# data3$FolateCropland <- data3$Folate / data3$HarvestedArea_ws
+# data3$Vit_ACropland <- data3$Vit_A / data3$HarvestedArea_ws
+# data3$ZincCropland <- data3$Zinc / data3$HarvestedArea_ws 
+# data3$IronCropland <- data3$Iron / data3$HarvestedArea_ws
+# data3$CalciumWater <- data3$Calcium / data3$total_water_ws
+# data3$Vit_B12Water <- data3$Vit_B12 / data3$total_water_ws
+# data3$FolateWater <- data3$Folate / data3$total_water_ws
+# data3$Vit_AWater <- data3$Vit_A / data3$total_water_ws
+# data3$ZincWater <- data3$Zinc / data3$total_water_ws
+# data3$IronWater <- data3$Iron / data3$total_water_ws
+# 
+# data_total <- data3 %>% group_by(iso3) %>%
+#   summarise(HarvestedArea_Country = sum(HarvestedArea))
+# data3 <- left_join(data3, data_total, by="iso3")
+# data3$PercentageHarvestedArea <- data3$HarvestedArea / data3$HarvestedArea_Country * 100
+# 
+# data4 <- data3[data3$PercentageHarvestedArea > 0.4999, ]
+# 
+# data4 <- data4 %>% group_by(if_bws, ifsmh, fsystem) %>% #if_bws, ifsmh,  fsystem
+#   summarise(HarvestedArea = median(HarvAreaCropland, na.rm=T) ,
+#             production = median(prodCropland, na.rm=T) ,
+#             Energy_kcal = median(EnergyCropland, na.rm=T) ,
+#             WaterCropland = median(WaterCropland, na.rm=T),
+#             green_water_m3 = median(green_water_pc, na.rm=T),
+#             blue_water_m3 = median(blue_water_pc, na.rm=T), 
+#             Calcium = median(CalciumCropland, na.rm=T),
+#             Vit_B12 = median(Vit_B12Cropland, na.rm=T),
+#             Folate = median(FolateCropland, na.rm=T),
+#             Vit_A = median(Vit_ACropland, na.rm=T),
+#             Zinc = median(ZincCropland, na.rm=T), 
+#             Iron = median(IronCropland, na.rm=T),
+#             Calcium_water = median(CalciumWater, na.rm=T),
+#             Vit_B12_water = median(Vit_B12Water, na.rm=T),
+#             Folate_water = median(FolateWater, na.rm=T),
+#             Vit_A_water = median(Vit_AWater, na.rm=T),
+#             Zinc_water = median(ZincWater, na.rm=T), 
+#             Iron_water = median(IronWater, na.rm=T),
+#             Value = median(Value, na.rm=T), 
+#             PercentageHarvestedArea = median(PercentageHarvestedArea),
+#             cou = n())
+# 
+# View(data4)
+# 
+# 
+
+
+#####
+
 data3$percCropland <- data3$Value / totalCropland
-data3$HarvAreaCropland <- data3$HarvestedArea / data3$Value
-data3$prodCropland <- data3$production_t / data3$Value
-data3$EnergyCropland <- data3$Energy_kcal / data3$Value
-data3$WaterCropland <- data3$total_water_m3 / data3$Value
-data3$green_water_pc <- data3$green_water_m3 / data3$total_water_m3 
-data3$blue_water_pc <- data3$blue_water_m3 / data3$total_water_m3 
-data3$CalciumCropland <- data3$Calcium / data3$Value
-data3$Vit_B12Cropland <- data3$Vit_B12 / data3$Value
-data3$FolateCropland <- data3$Folate / data3$Value
-data3$Vit_ACropland <- data3$Vit_A / data3$Value
-data3$ZincCropland <- data3$Zinc / data3$Value 
-data3$IronCropland <- data3$Iron / data3$Value
+data3$HarvAreaCropland <- data3$HarvestedArea / data3$HarvestedArea_ws
+data3$prodCropland <- data3$production_t / data3$HarvestedArea
+data3$EnergyCropland <- data3$Energy_kcal / data3$HarvestedArea
+data3$WaterCropland <- data3$total_water_m3 / data3$HarvestedArea
+data3$green_water_pc <- data3$green_water_m3 / data3$total_water_ws
+data3$blue_water_pc <- data3$blue_water_m3 / data3$total_water_ws
+data3$CalciumCropland <- data3$Calcium / data3$HarvestedArea
+data3$Vit_B12Cropland <- data3$Vit_B12 / data3$HarvestedArea
+data3$FolateCropland <- data3$Folate / data3$HarvestedArea
+data3$Vit_ACropland <- data3$Vit_A / data3$HarvestedArea
+data3$ZincCropland <- data3$Zinc / data3$HarvestedArea 
+data3$IronCropland <- data3$Iron / data3$HarvestedArea
 data3$CalciumWater <- data3$Calcium / data3$total_water_m3
 data3$Vit_B12Water <- data3$Vit_B12 / data3$total_water_m3
 data3$FolateWater <- data3$Folate / data3$total_water_m3
 data3$Vit_AWater <- data3$Vit_A / data3$total_water_m3
-data3$ZincWater <- data3$Zinc / data3$total_water_m3 
+data3$ZincWater <- data3$Zinc / data3$total_water_m3
 data3$IronWater <- data3$Iron / data3$total_water_m3
+data3$CalciumProd <- data3$Calcium / data3$production_t
+data3$Vit_B12Prod <- data3$Vit_B12 / data3$production_t
+data3$FolateProd <- data3$Folate / data3$production_t
+data3$Vit_AProd <- data3$Vit_A / data3$production_t
+data3$ZincProd <- data3$Zinc / data3$production_t
+data3$IronProd <- data3$Iron / data3$production_t
 
 data_total <- data3 %>% group_by(iso3) %>%
   summarise(HarvestedArea_Country = sum(HarvestedArea))
@@ -109,6 +182,31 @@ data4 <- data4 %>% group_by(if_bws, ifsmh, fsystem) %>% #if_bws, ifsmh,  fsystem
             Zinc_water = median(ZincWater, na.rm=T), 
             Iron_water = median(IronWater, na.rm=T),
             Value = median(Value, na.rm=T), 
+            CalciumProd = median(CalciumProd, na.rm=T),
+            FolateProd = median(FolateProd, na.rm=T),
+            Vit_AProd = median(Vit_AProd, na.rm=T),
+            ZincProd = median(ZincProd, na.rm=T), 
+            IronProd = median(IronProd, na.rm=T),
+            Value = median(Value, na.rm=T),
             PercentageHarvestedArea = median(PercentageHarvestedArea),
             cou = n())
 
+View(data4)
+
+
+####
+
+library(vegan)
+a <- data4
+a$if_bws <- NULL
+a$fsystem <- NULL
+a$cou <- NULL
+a$ifsmh <- NULL
+a$HarvestedArea <- NULL
+a$Value <- NULL
+a$PercentageHarvestedArea <- NULL
+
+a <- decostand(a, "normalize", 2)
+a <- vegdist(a, "euclidean")
+clu <- hclust(a, method = "ward.D2")
+plot(clu)
