@@ -70,63 +70,6 @@ area_ws <- data3 %>% group_by(iso3, if_bws) %>%
 data3 <- left_join(data3, area_ws, by=c("iso3", "if_bws"))
 
 
-# ####
-# 
-# data3$percCropland <- data3$Value / totalCropland
-# data3$HarvAreaCropland <- data3$HarvestedArea / data3$HarvestedArea_ws
-# data3$prodCropland <- data3$production_t / data3$HarvestedArea_ws
-# data3$EnergyCropland <- data3$Energy_kcal / data3$HarvestedArea_ws
-# data3$WaterCropland <- data3$total_water_m3 / data3$HarvestedArea_ws
-# data3$green_water_pc <- data3$green_water_m3 / data3$total_water_ws
-# data3$blue_water_pc <- data3$blue_water_m3 / data3$total_water_ws
-# data3$CalciumCropland <- data3$Calcium / data3$HarvestedArea_ws
-# data3$Vit_B12Cropland <- data3$Vit_B12 / data3$HarvestedArea_ws
-# data3$FolateCropland <- data3$Folate / data3$HarvestedArea_ws
-# data3$Vit_ACropland <- data3$Vit_A / data3$HarvestedArea_ws
-# data3$ZincCropland <- data3$Zinc / data3$HarvestedArea_ws 
-# data3$IronCropland <- data3$Iron / data3$HarvestedArea_ws
-# data3$CalciumWater <- data3$Calcium / data3$total_water_ws
-# data3$Vit_B12Water <- data3$Vit_B12 / data3$total_water_ws
-# data3$FolateWater <- data3$Folate / data3$total_water_ws
-# data3$Vit_AWater <- data3$Vit_A / data3$total_water_ws
-# data3$ZincWater <- data3$Zinc / data3$total_water_ws
-# data3$IronWater <- data3$Iron / data3$total_water_ws
-# 
-# data_total <- data3 %>% group_by(iso3) %>%
-#   summarise(HarvestedArea_Country = sum(HarvestedArea))
-# data3 <- left_join(data3, data_total, by="iso3")
-# data3$PercentageHarvestedArea <- data3$HarvestedArea / data3$HarvestedArea_Country * 100
-# 
-# data4 <- data3[data3$PercentageHarvestedArea > 0.4999, ]
-# 
-# data4 <- data4 %>% group_by(if_bws, ifsmh, fsystem) %>% #if_bws, ifsmh,  fsystem
-#   summarise(HarvestedArea = median(HarvAreaCropland, na.rm=T) ,
-#             production = median(prodCropland, na.rm=T) ,
-#             Energy_kcal = median(EnergyCropland, na.rm=T) ,
-#             WaterCropland = median(WaterCropland, na.rm=T),
-#             green_water_m3 = median(green_water_pc, na.rm=T),
-#             blue_water_m3 = median(blue_water_pc, na.rm=T), 
-#             Calcium = median(CalciumCropland, na.rm=T),
-#             Vit_B12 = median(Vit_B12Cropland, na.rm=T),
-#             Folate = median(FolateCropland, na.rm=T),
-#             Vit_A = median(Vit_ACropland, na.rm=T),
-#             Zinc = median(ZincCropland, na.rm=T), 
-#             Iron = median(IronCropland, na.rm=T),
-#             Calcium_water = median(CalciumWater, na.rm=T),
-#             Vit_B12_water = median(Vit_B12Water, na.rm=T),
-#             Folate_water = median(FolateWater, na.rm=T),
-#             Vit_A_water = median(Vit_AWater, na.rm=T),
-#             Zinc_water = median(ZincWater, na.rm=T), 
-#             Iron_water = median(IronWater, na.rm=T),
-#             Value = median(Value, na.rm=T), 
-#             PercentageHarvestedArea = median(PercentageHarvestedArea),
-#             cou = n())
-# 
-# View(data4)
-# 
-# 
-
-
 #####
 
 data3$percCropland <- data3$Value / totalCropland
@@ -162,53 +105,121 @@ data3$PercentageHarvestedArea <- data3$HarvestedArea / data3$HarvestedArea_Count
 
 data4 <- data3[data3$PercentageHarvestedArea > 0.4999, ]
 
+data4$class <- paste(data4$if_bws, data4$ifsmh, data4$fsystem)
+data4$class <- as.factor(data4$class)
+levels(data4$class) <- list("WS_S_R" = "Water scarcity Small scale ag. Rainfed", 
+                            "WS_L_R" = "Water scarcity Large scale ag. Rainfed",
+                            "WS_S_I" = "Water scarcity Small scale ag. Irrigated",
+                            "WS_L_I" = "Water scarcity Large scale ag. Irrigated", 
+                            "WA_S_R" = "Water abundance Small scale ag. Rainfed",
+                            "WA_L_R" = "Water abundance Large scale ag. Rainfed",
+                            "WA_S_I" = "Water abundance Small scale ag. Irrigated",
+                            "WA_L_I" = "Water abundance Large scale ag. Irrigated")
+
+
+ggplot(data4, aes(x=class, y=CalciumCropland, fill=class)) +
+  geom_violin() + #trim = FALSE
+  scale_fill_brewer(palette="Set3") +
+  geom_boxplot(width=0.1, fill="white", outlier.size=0) + #outlier.colour="red", outlier.shape=8, outlier.size=4
+  #geom_dotplot(binaxis='y', stackdir='center', dotsize=0.5) +
+  labs(x="", y = "Vit A per tonne") + #title="Plot of length  per dose",
+  theme_bw() +
+  theme(legend.position= "bottom") #axis.text.x = element_text(angle= 90))
+
+# library(ggpubr)
+# p <- ggdensity(data4, x = "Vit_AProd", fill = "class", 
+#                palette = "jco", 
+#                ggtheme = theme_light(), legend = "top")
+# p
+
+
+
 ##
-
-data4 <- data4 %>% group_by(if_bws, ifsmh, fsystem) %>% #if_bws, ifsmh,  fsystem
-  summarise(HarvestedArea = median(HarvAreaCropland, na.rm=T) ,
-            production = median(prodCropland, na.rm=T) ,
-            Energy_kcal = median(EnergyCropland, na.rm=T) ,
-            WaterCropland = median(WaterCropland, na.rm=T),
-            green_water_m3 = median(green_water_pc, na.rm=T),
-            blue_water_m3 = median(blue_water_pc, na.rm=T), 
-            Calcium = median(CalciumCropland, na.rm=T),
-            Vit_B12 = median(Vit_B12Cropland, na.rm=T),
-            Folate = median(FolateCropland, na.rm=T),
-            Vit_A = median(Vit_ACropland, na.rm=T),
-            Zinc = median(ZincCropland, na.rm=T), 
-            Iron = median(IronCropland, na.rm=T),
-            Calcium_water = median(CalciumWater, na.rm=T),
-            Vit_B12_water = median(Vit_B12Water, na.rm=T),
-            Folate_water = median(FolateWater, na.rm=T),
-            Vit_A_water = median(Vit_AWater, na.rm=T),
-            Zinc_water = median(ZincWater, na.rm=T), 
-            Iron_water = median(IronWater, na.rm=T),
-            Value = median(Value, na.rm=T), 
-            CalciumProd = median(CalciumProd, na.rm=T),
-            FolateProd = median(FolateProd, na.rm=T),
-            Vit_AProd = median(Vit_AProd, na.rm=T),
-            ZincProd = median(ZincProd, na.rm=T), 
-            IronProd = median(IronProd, na.rm=T),
-            Value = median(Value, na.rm=T),
-            PercentageHarvestedArea = median(PercentageHarvestedArea),
-            cou = n())
-
-View(data4)
-
-
 ####
 
 library(vegan)
-a <- data4
-a$if_bws <- NULL
-a$fsystem <- NULL
-a$cou <- NULL
-a$ifsmh <- NULL
-a$HarvestedArea <- NULL
-a$Value <- NULL
-a$PercentageHarvestedArea <- NULL
+a <- data4[, c("iso3", "class", "FolateProd", "Vit_AProd", "ZincProd", "IronProd", 
+               "CalciumProd", "FolateCropland", "Vit_ACropland", 
+               "ZincCropland", "IronCropland", "CalciumCropland")] #, "prodCropland", "EnergyCropland", "WaterCropland"
+# "ZincWater", "IronWater", "CalciumWater", "FolateWater", "Vit_AWater",
+ids <- a[, c("iso3", "class")]
+ids$id <- paste(ids$iso3, ids$class)
+a$iso3 <- NULL
+a$class <- NULL
+rownames(a) <- ids$id
+
+a <- decostand(a, "normalize", 2)
+#a <- vegdist(a, "euclidean")
+
+b <- rda(a, scale=FALSE)
+# U <- b$CA$v    # is equal to U above
+# F <- b$CA$u
+# stats::biplot(F, U, cex=1, main= "Hellinger tb-PCA (Crops, 1960)", col=c("#2f5061", "#e57f84"))
+# screeplot(b, bstick = TRUE, npcs = 5, col="#2f5061", main="Screeplot")
+# vegan::stressplot(b, k=2, p.col="#f2c3b1", l.col="#00556f", xlim=c(0, sqrt(2)), ylim=c(0, sqrt(2)), main="Shepard diagram") 
+
+pc <- as.data.frame(b$CA$u)
+pc$iso3 <- ids$iso3
+pc$class <- ids$class
+
+fig <- ggplot(pc, aes(x=PC1, y=PC2, color=class, label=iso3)) +
+  geom_point() +
+  stat_ellipse(aes(alpha=0.3)) + #aes(alpha=ifelse(type %in% "Regions", 0.0, 0.3)),  show.legend=FALSE) + 
+  #coord_cartesian(xlim=c(-3.5,3.5), y=c(-3.5,3.5)) + 
+  #ggtitle("NMDS/Hellinger distance, Crops, 1960") +
+  #ggtitle(paste("NMDS/Hellinger distance - Stress =", round(hel.60.nmds$stress, 3))) +
+  #scale_color_manual(values=c("#e57f8460", "#2f5061")) +
+  #geom_text(aes(label=ifelse(type %in% "Regions", as.character(Name),'')),hjust=0,vjust=0) +
+  theme_bw() #+ 
+  #theme(legend.position="none") 
+ggplotly(fig)
+
+##
+a <- data4[, c("iso3", "class", "FolateProd", "Vit_AProd", "ZincProd", "IronProd", 
+               "CalciumProd",  "FolateCropland", "Vit_ACropland", 
+               "ZincCropland", "IronCropland", "CalciumCropland")]
+# "prodCropland", "EnergyCropland", "WaterCropland", "ZincWater", "IronWater", "CalciumWater", "FolateWater", "Vit_AWater",
+ids <- a[, c("iso3", "class")]
+ids$id <- paste(ids$iso3, ids$class)
+a$iso3 <- NULL
+a$class <- NULL
+rownames(a) <- ids$id
+a <- decostand(a, "normalize")
+
+ver <- metaMDS(a, distance="euclidean", k=2)
+ver <- as.data.frame(ver$points)
+
+ver$iso3 <- ids$iso3
+ver$class <- ids$class
+
+fig <- ggplot(ver, aes(x=MDS1, y=MDS2, color=class, label=iso3)) +
+  geom_point() +
+  stat_ellipse(aes(alpha=0.3)) + #aes(alpha=ifelse(type %in% "Regions", 0.0, 0.3)),  show.legend=FALSE) + 
+  #coord_cartesian(xlim=c(-3.5,3.5), y=c(-3.5,3.5)) + 
+  #ggtitle("NMDS/Hellinger distance, Crops, 1960") +
+  #ggtitle(paste("NMDS/Hellinger distance - Stress =", round(hel.60.nmds$stress, 3))) +
+  #scale_color_manual(values=c("#e57f8460", "#2f5061")) +
+  #geom_text(aes(label=ifelse(type %in% "Regions", as.character(Name),'')),hjust=0,vjust=0) +
+  theme_bw() #+ 
+  #theme(legend.position="none") 
+ggplotly(fig)
+
+##
+
+a <- data4[, c("iso3", "class", "FolateProd", "Vit_AProd", "ZincProd", "IronProd", 
+               "CalciumProd", "ZincWater", "IronWater", "CalciumWater", 
+               "FolateWater", "Vit_AWater", "FolateCropland", "Vit_ACropland", 
+               "ZincCropland", "IronCropland", "CalciumCropland")] #, "prodCropland", "EnergyCropland", "WaterCropland"
+ids <- a[, c("iso3", "class")]
+ids$id <- paste(ids$iso3, ids$class)
+a$iso3 <- NULL
+a$class <- NULL
+rownames(a) <- ids$id
 
 a <- decostand(a, "normalize", 2)
 a <- vegdist(a, "euclidean")
 clu <- hclust(a, method = "ward.D2")
-plot(clu)
+dend <- as.dendrogram(clu)
+
+par(mfrow = c(1, 1), cex=0.3)
+plot(dend)
